@@ -1,0 +1,20 @@
+language: node_js
+node_js:
+  - '12'
+branches:
+  only:
+    - develop
+    - "/^release-[0-999].[0-999]$/"
+    - master
+notifications:
+  email:
+    recipients:
+      - masanchezve@gmail.com
+      - sonia.bejar017@gmail.com
+deploy:
+  provider: heroku
+  api_key:
+    secure: fvua5n1QQetFOU3vHjXbgWGait4sPbVf4grJNJjHuEk5NWABkwbvQeNQSi6p7Rv74yGfpSGLy3yTbfNV78QdxuC2g9VyUUJanruhW/tSkzmpydWmmffTBdTj113Q2eI1aqOQ77wx4xV9l4IKXYPpVKMkxt1dAI/NtLzZQi2z3YNJ8bKI1I9cA9MNmk7955cIqbbV6wAJ63ZMAK1v5NtHJkIC13k34ptQv3L1AK22U+JeQYSwkpEqWg7hbws2I5gKhzpgfCV1/MHGyuPlQlLyzI7xI5yB8KsGuBPkzciXSJ0bph+NErl1KawyHp8CsMn5u/ihLIXWgKaf7Mv2pAp2kNMXmaUOwFwCWfBR6edNliXiiHSXx2ikANDDxILPWyezMvQGvPG7ebDCCRQR3ZzGj7gZlEzgAVzVHIuXZB2ygF1Z1uUrnC1lc65DwyhWhbrr0b2C8za0K5EhLWvoLdo5Bphmv/Op4qbkyO+yNsGQfAUN3iq//7A7bMZlNwVmkfxNtDNEwjK4DrFFOk6aaMZI0x8zOlHAj+nUFKE15UFf9MhWh38WClgK/AitnKY82YvX+aUDGJKZoAYvwSzo6y9kcuHZHPWhrZVQXa3DuUfPK13v9eMpD8kdfIpl8dMwJXqqa4xudX6oV62EiPgKcnNKeJBW2NumXh2K4n2e7CoGSzI=
+  on:
+    branch: master
+  app: holy-key-universe-back

@@ -1,0 +1,27 @@
+{
+  "name": "holy-key-universe-back",
+  "version": "1.0.0",
+  "description": "Back del proyecto final Santa Tecla",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/msanchezv/holy-key-universe-back.git"
+  },
+  "author": "Sonia Bejar Muñoz & María Sánchez Velázquez",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/msanchezv/holy-key-universe-back/issues"
+  },
+  "homepage": "https://github.com/msanchezv/holy-key-universe-back#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "mongodb": "^3.5.9"
+  },
+  "engines": {
+    "node": "12.x"
+  }
+}
