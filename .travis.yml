@@ -1,6 +1,9 @@
 language: node_js
 node_js:
 - '12'
+addons:
+  sonarcloud:
+    organization: "msanchezv"
 branches:
   only:
   - develop
@@ -11,10 +14,10 @@ notifications:
     recipients:
     - masanchezve@gmail.com
     - sonia.bejar017@gmail.com
+script:
+  - sonar-scanner
 deploy:
   provider: heroku
-  api_key:
-    secure: dUefnHj6k8W1H3qCPY/xq/Ci4m5ZsGZAbFUPcKE8Ew9Wc9ScsiaKa15iyPhpdSfGEHfp73L834TR42s6Y98u0D69I3PAJvqFZYnBMKOP5qqEk7XqcR3QasKp5AbYFCNx9jU6UsIP1fq4p+r6H4h+o9DTq/qf65UvnAFwwFuNZctN/PWwYPZ09cqsZZtoj4Xrdd4zr5FIg/b6/9CJuLl40nAZklqZhbEuenJFqLB2IbHdz9kgOf1u32GrfgrFis6MX0wLaEytSx7wThaCGUTcu/ldAqNKPkRfJQbwEZrFo4r3AMIphIjU0NhwiZh0eYKKdxTzCT6N8yjkZudRZZNGxApPpQNwENGm1kTJd7BLynS8BCOD1cYHGvlqFfianS8Rz7A/9DwRy1y+kYOs/zKawyKGWlFBwQ40xYDKsIEl2abf/FUTEG7ogGO3kp7LDXfULB66YIE9JJ0tGnqrbT9AiEcxsh63F90JlkIcnc5Y/1wcB9PqfUG48ZhAKt5D/xMywSBOX5RgsjGPZzL4sxxqhXfgKZ1vnBP53coUR5W42nWgu62qP8g1r6PxiXxoSIn9l5MdNZX+B0lWwVPHnTwgBRsA0D1uB+n8PuHyd8rxwCX3FRWzEuaV2n1Z1rwLxSF3KPCT+eFnjTxw1eI37KeETj3x1irX+WadcWHU9A0DkUs=
+  api_key: $HEROKU
   on:
     branch: master
-  app: holy-key-universe-back
