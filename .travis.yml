@@ -16,8 +16,10 @@ notifications:
     recipients:
     - masanchezve@gmail.com
     - sonia.bejar017@gmail.com
+before_script:
+  - npm run build
 script:
-- sonar-scanner
+  - sonar-scanner
 deploy:
   provider: heroku
   api_key: "$HEROKU"
