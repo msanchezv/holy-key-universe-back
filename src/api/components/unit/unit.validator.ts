@@ -44,11 +44,11 @@ export const UNIT_SCHEMA: Schema = {
     },
     patternProperties: {
         "^(?!(title|relations|images|gender)$).*": {
-            type: "array",
-            items: {
-                type: "object",
-                properties: {
-                    details: {
+            type: "object",
+            properties: {
+                details: {
+                    type: "array",
+                    items: {
                         type: "object",
                         properties: {
                             text: {type: "string"},
@@ -56,18 +56,25 @@ export const UNIT_SCHEMA: Schema = {
                                 type: "array",
                                 items: {type: "string"}
                             },
-                            type: {type: "string"},
-                            status: {type: "string"},
+                            type: {
+                                type: "string",
+                                pattern: "^(text|img)$"
+                            },
+                            status: {
+                                type: "string",
+                                pattern: "^(correct|incorrect|tocheck)$"
+                            },
                         },
                         required: ["text"],
                         additionalProperties: false
                     },
+                    minItems: 1
                 },
-                required: ["details"],
-                additionalProperties: false
             },
+            required: ["details"],
+            additionalProperties: false
         }
     },
     additionalProperties: false,
     required: ["title"]
-}
+};
