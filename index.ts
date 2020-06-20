@@ -1,7 +1,8 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
+import {UnitRoutes} from "./src/api/components/unit/unit.routes";
 
-class App {
+export class App {
 
     public app: express.Application;
 
@@ -10,11 +11,10 @@ class App {
         this.config();
     }
 
-    private config(): void{
+    private config(): void {
         this.app.use(bodyParser.json());
-        this.app.use(bodyParser.urlencoded({ extended: false }));
+        this.app.use(bodyParser.urlencoded({extended: false}));
+        this.app.use('/api', new UnitRoutes().router)
     }
 
 }
-
-export default new App().app;

@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-- '12'
+  - '12'
 addons:
   sonarcloud:
     organization: "msanchezv"
@@ -8,14 +8,14 @@ addons:
       secure: fwz2agl6kVxNTN+qV+Dl9nWRCGTYE+CQs5sbDAcqxjvWMIWCqSKVH/FSwJrtey3nDwWCU70BrxyERR95yi4WaisSR4BOwuFvz8Y27BfJXz7fOa2l+lXVwcnxyz0jfPtzMALdrzyDYMkLmKePTgszc7XN1YXDcOMJ6O9PYmMw00zdPmgBwhGW0Tq1K7Os1DGdTBImZXPkWMA/VIJvzuqhMsGQPfHvEpuDnKvuirr5OL9vDH5LyGZRHS3TOjv3B9d8118mgW5LanP67ITfGzrkEAexzJwWrwj+TMsd7DneFqi0WUPKgaivxctrL0psrOcPzlNpwPCr/ZJFyBxKnsSqxRWauxSfYG38GU/y6pg0bnHDiPNPVuNJq5UsjDXFqeBOzcuUAWeDxgUs9c7Ev1pyzMvRBCnSRfB6j3DMtJv4W7DIoKyIgVZC2iTFDYpH7HYC3xkVqfrwyP7d+OtJzL+yRGxLi5evJgomYPKbkTXVqtHSix+5xcXRMxSSAnPk2lQ2ytXAap3LJBo5LRSkgewb2vvofJCFXHQoHSbvN8U+PR9sANAbpggB9xfBhostUcJSpoLQgTtoprPUggYIasbFLBKY0fkAszKh5f1DFyf8fuHyhdn/RosEdVY66HLS0r5X+8UJKJiO0aEVGoNISOD6+jnLLq/hHcFKUEM3iJXxsmA=
 branches:
   only:
-  - develop
-  - "/^release-[0-999].[0-999]$/"
-  - master
+    - develop
+    - "/^release-[0-999].[0-999]$/"
+    - master
 notifications:
   email:
     recipients:
-    - masanchezve@gmail.com
-    - sonia.bejar017@gmail.com
+      - masanchezve@gmail.com
+      - sonia.bejar017@gmail.com
 before_script:
   - npm run build
 script:
