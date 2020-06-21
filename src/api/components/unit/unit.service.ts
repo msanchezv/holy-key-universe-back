@@ -1,4 +1,5 @@
 import {bind} from 'decko';
+import { ObjectId } from 'mongodb'
 
 import * as mongo from "../../../../db/db"
 import {Unit} from "./unit.model"
@@ -21,9 +22,32 @@ export class UnitService {
         }
     }
 
-    public async searchUnitByTitle(title: string): Promise<Unit[]> {
+    /**
+     * Read a unit from db by title
+     *
+     * @param title Unit title
+     * @returns Returns a single unit
+     */
+    @bind
+    public async searchUnitByTitle(title: string): Promise<Unit> {
         try {
-            return this.db.collection('units').find({title: {$eq: title}}).toArray();
+            return this.db.collection('units').findOne({title: {$eq: title}});
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    /**
+     * Read a unit from db by id
+     *
+     * @param id Unit id
+     * @returns Returns a single unit
+     */
+    @bind
+    public async searchUnitById(id: string): Promise<Unit> {
+        try {
+            let o_id = ObjectId.isValid(id)? new ObjectId(id) : id;
+            return this.db.collection('units').findOne({ _id: o_id });
         } catch (err) {
             throw new Error(err);
         }

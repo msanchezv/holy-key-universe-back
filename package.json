@@ -34,6 +34,7 @@
     "node": "12.x"
   },
   "devDependencies": {
+    "@types/mongodb": "^3.5.23",
     "nodemon": "^2.0.4"
   }
 }
