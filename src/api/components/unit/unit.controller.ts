@@ -9,6 +9,7 @@ import {Card, Detail} from "./card/card";
 import {DetailsBuilder} from "./card/details.builder";
 import {RelationService} from "../relation/relation.service";
 import {RelationUtil} from "../relation/util/relation.util";
+import {Relation} from "../relation/relation.model";
 
 export class UnitController {
     private readonly unitService: UnitService = new UnitService();
@@ -70,7 +71,7 @@ export class UnitController {
             let relationsId = {};
             if (relations) {
                 const errorMessage = await this.getUnitIdRelations(relations, relationsId);
-                if(errorMessage){
+                if (errorMessage) {
                     return res.status(400).json({status: 400, error: errorMessage});
                 }
             }
@@ -88,7 +89,46 @@ export class UnitController {
         }
     }
 
-    private async getUnitIdRelations(relations: any, relationsId): Promise<string>{
+    /**
+     * Delete unit
+     *
+     * @param req Express request
+     * @param res Express response
+     * @param next Express next
+     * @returns Returns HTTP response
+     */
+    @bind
+    public async deleteUnit(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+        try {
+            const {unitId} = req.params;
+            if (!unitId) {
+                return res.status(400).json({status: 400, error: 'Invalid request'});
+            }
+
+            const unitFound = await this.unitService.searchUnitById(unitId.toString());
+            if (!unitFound) {
+                return res.status(404).json({status: 404, error: 'Unit not found'});
+            }
+
+            let relations: Relation[];
+            let relationsIds: string[] = [];
+            relations = await this.relationService.searchRelationsUnit(unitFound._id);
+            if (relations) {
+                relations.forEach((relation) => {
+                    relationsIds.push(relation._id);
+                });
+                //await this.relationService.deleteRelations(relationsIds);
+            }
+
+            //await this.unitService.delete(unitDB);
+
+            return res.status(204).send();
+        } catch (err) {
+            return res.status(500).json({status: 500, error: `Internal server error`});
+        }
+    }
+
+    private async getUnitIdRelations(relations: any, relationsId): Promise<string> {
         for (const relationType of Object.keys(relations)) {
             relationsId[relationType] = [];
             for (const unitName of relations[relationType]) {

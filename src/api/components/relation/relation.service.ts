@@ -1,4 +1,5 @@
 import {bind} from 'decko';
+import {ObjectId} from 'mongodb';
 
 import * as mongo from "../../../../db/db"
 import {Relation} from "./relation.model"
@@ -20,4 +21,37 @@ export class RelationService {
             throw new Error(err);
         }
     }
+
+    /**
+     * Read all unit relations
+     *
+     * @param unitId unitFrom or unitTo id relation
+     * @returns Returns Return an array of relations
+     */
+    @bind
+    public async searchRelationsUnit(unitId: string): Promise<Relation[]> {
+        try {
+            return this.db.collection('relations').find(
+                {$or: [{unitFrom: new ObjectId(unitId)}, {unitTo:  new ObjectId(unitId)}]}).toArray();
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    /**
+     * Delete a relation from db
+     *
+     * @param relationId Relation id to delete
+     * @returns Returns insert document result
+     */
+    @bind
+    public async deleteRelations(relationId: string): Promise<any> {
+        try {
+            return this.db.collection('relations').deleteOne({_id: new ObjectId(relationId)});
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+
 }

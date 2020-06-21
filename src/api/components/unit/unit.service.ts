@@ -1,7 +1,7 @@
 import {bind} from 'decko';
-import { ObjectId } from 'mongodb'
+import {ObjectId} from 'mongodb';
 
-import * as mongo from "../../../../db/db"
+import * as mongo from "../../../../db/db";
 import {Unit} from "./unit.model"
 
 export class UnitService {
@@ -48,6 +48,14 @@ export class UnitService {
         try {
             let o_id = ObjectId.isValid(id)? new ObjectId(id) : id;
             return this.db.collection('units').findOne({ _id: o_id });
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    public async delete(unit: Unit): Promise<any> {
+        try {
+            return this.db.collection('units').deleteOne({_id: {$eq: new ObjectId(unit._id)}});
         } catch (err) {
             throw new Error(err);
         }

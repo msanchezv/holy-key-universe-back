@@ -1,4 +1,5 @@
 export interface Relation {
+    _id?: string;
     unitFrom: string;
     unitTo: string;
     type: RELATION_TYPE;
