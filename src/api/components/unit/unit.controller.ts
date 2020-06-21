@@ -26,19 +26,25 @@ export class UnitController {
     @bind
     public async readUnit(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         try {
-            const { unitId } = req.params;
+            const {unitId} = req.params;
 
             if (!unitId) {
-                return res.status(400).json({ status: 400, error: 'Invalid request' });
+                return res.status(400).json({status: 400, error: 'Invalid request'});
             }
 
             const unit: Unit = await this.unitService.searchUnitById(unitId);
 
-            if(!unit){
+            if (!unit) {
                 return res.status(404).json({status: 404, error: 'Unit not found'});
             }
 
-            return res.json({ status: res.statusCode, data: unit });
+            let unitResponse = this.formatUnitResponse(unit);
+            let relations = await this.relationService.searchRelationsUnitByUnitFrom(unit._id);
+            if (relations.length > 0) {
+                unitResponse["relations"] = await this.formatRelationsUnitResponse(relations);
+            }
+
+            return res.json({status: res.statusCode, data: unitResponse});
         } catch (err) {
             return res.status(500).json({status: 500, error: `Internal server error`});
         }
@@ -204,6 +210,37 @@ export class UnitController {
             relationsIds.push(relation._id);
         });
         return await this.relationService.deleteRelations(relationsIds);
+    }
+
+    private formatUnitResponse(unit: Unit): any {
+        let unitResponse = {};
+        Object.keys(unit).forEach(key => {
+            if (key !== "cards" && unit[key]) {
+                unitResponse[key] = unit[key];
+            } else {
+                unit.cards.forEach((card) => {
+                    unitResponse[card.name] = {
+                        details: card.details
+                    }
+                })
+            }
+        });
+
+        return unitResponse;
+    }
+
+    private async formatRelationsUnitResponse(relations: Relation[]): Promise<any> {
+        let relationsResponse = {};
+        for (const relation of relations) {
+            let relationKey = RelationUtil.getRelationKeyByType(relation.type);
+            let relationValue = await this.unitService.searchNameById(relation.unitTo);
+            if (relationsResponse[relationKey])
+                relationsResponse[relationKey].push(relationValue.title);
+            else
+                relationsResponse[relationKey] = [relationValue.title];
+        }
+
+        return relationsResponse;
     }
 
 }

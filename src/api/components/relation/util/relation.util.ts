@@ -15,4 +15,19 @@ export class RelationUtil {
                 return RELATION_TYPE.USE;
         }
     }
+
+    static getRelationKeyByType(type: RELATION_TYPE) {
+        switch (type) {
+            case RELATION_TYPE.INHERITANCE:
+                return "bases";
+            case RELATION_TYPE.ASSOCIATION:
+                return "associates";
+            case RELATION_TYPE.AGGREGATION:
+                return "aggregates";
+            case RELATION_TYPE.COMPOSITION:
+                return "parts";
+            case RELATION_TYPE.USE:
+                return "used";
+        }
+    }
 }
