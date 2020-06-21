@@ -54,15 +54,15 @@ export class RelationService {
     }
 
     /**
-     * Delete a relation from db
+     * Delete relations from db
      *
-     * @param relationId Relation id to delete
+     * @param relationsId Relations ids to delete
      * @returns Returns insert document result
      */
     @bind
-    public async deleteRelations(relationId: string): Promise<any> {
+    public async deleteRelations(relationsId: string[]): Promise<any> {
         try {
-            return this.db.collection('relations').deleteOne({_id: new ObjectId(relationId)});
+            return this.db.collection('relations').deleteMany({_id: {$in: relationsId}});
         } catch (err) {
             throw new Error(err);
         }

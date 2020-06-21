@@ -117,16 +117,12 @@ export class UnitController {
             }
 
             let relations: Relation[];
-            let relationsIds: string[] = [];
             relations = await this.relationService.searchRelationsUnit(unitFound._id);
             if (relations) {
-                relations.forEach((relation) => {
-                    relationsIds.push(relation._id);
-                });
-                //await this.relationService.deleteRelations(relationsIds);
+                await this.deleteRelations(relations);
             }
 
-            //await this.unitService.delete(unitDB);
+            await this.unitService.delete(unitFound._id);
 
             return res.status(204).send();
         } catch (err) {
@@ -206,6 +202,14 @@ export class UnitController {
             }
         }
         return promises;
+    }
+
+    private async deleteRelations(relations): Promise<any> {
+        let relationsIds = [];
+        relations.forEach((relation) => {
+            relationsIds.push(relation._id);
+        });
+        return await this.relationService.deleteRelations(relationsIds);
     }
 
     private formatUnitResponse(unit: Unit): any {

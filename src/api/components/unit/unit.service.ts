@@ -68,9 +68,16 @@ export class UnitService {
         }
     }
 
-    public async delete(unit: Unit): Promise<any> {
+    /**
+     * Delete a unit from db
+     *
+     * @param id Unit id
+     * @returns Returns a single unit
+     */
+    @bind
+    public async delete(id: string): Promise<any> {
         try {
-            return this.db.collection('units').deleteOne({_id: {$eq: new ObjectId(unit._id)}});
+            return this.db.collection('units').deleteOne({_id: new ObjectId(id)});
         } catch (err) {
             throw new Error(err);
         }
