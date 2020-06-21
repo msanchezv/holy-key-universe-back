@@ -7,9 +7,12 @@ import {UnitService} from './unit.service';
 import {Unit} from './unit.model';
 import {Card, Detail} from "./card/card";
 import {DetailsBuilder} from "./card/details.builder";
+import {RelationService} from "../relation/relation.service";
+import {RelationUtil} from "../relation/util/relation.util";
 
 export class UnitController {
     private readonly unitService: UnitService = new UnitService();
+    private readonly relationService: RelationService = new RelationService();
 
     /**
      * Create unit
@@ -35,24 +38,49 @@ export class UnitController {
                 return res.status(400).json({status: 400, error: 'Name already exists'});
             }
 
-            //TODO: Guardar relations por separado
+            let relationsId = {};
+            if (relations) {
+                const errorMessage = await this.getUnitIdRelations(relations, relationsId);
+                if(errorMessage){
+                    return res.status(400).json({status: 400, error: errorMessage});
+                }
+            }
 
             unit = this.buildUnit(body);
             const result = await this.unitService.save(unit);
 
+            if (relations) {
+                await Promise.all(this.saveRelations(relationsId, result.insertedId));
+            }
+
             return res.json({status: res.statusCode, data: result.ops[0]});
         } catch (err) {
-            return next(err);
+            return res.status(500).json({status: 500, error: `Internal server error`});
         }
     }
 
-    isUnitValid(unit: Unit): boolean {
+    private async getUnitIdRelations(relations: any, relationsId): Promise<string>{
+        for (const relationType of Object.keys(relations)) {
+            relationsId[relationType] = [];
+            for (const unitName of relations[relationType]) {
+                let unit = await this.unitService.searchUnitByTitle(unitName);
+                if (unit.length == 1) {
+                    relationsId[relationType].push(unit[0]._id)
+                } else {
+                    return `Unit ${unitName} not found`;
+                }
+            }
+        }
+        return null;
+    }
+
+    private isUnitValid(unit: Unit): boolean {
         let validator = new Validator();
         let errors = validator.validate(unit, UNIT_SCHEMA).errors;
         return errors.length === 0;
     }
 
-    getCards(unit: any): Card[] {
+    private getCards(unit: any): Card[] {
         const reservedKeys = ['title', 'gender', 'images', 'relations'];
         let cards: Card[] = [];
         Object.keys(unit).forEach(key => {
@@ -67,7 +95,7 @@ export class UnitController {
         return cards;
     }
 
-    getDetails(cardBody: any): Detail[] {
+    private getDetails(cardBody: any): Detail[] {
         let details: Detail[] = [];
         let detailBuilder: DetailsBuilder = new DetailsBuilder();
         cardBody.details.forEach(detail => {
@@ -80,7 +108,7 @@ export class UnitController {
         return details;
     }
 
-    buildUnit(body): Unit {
+    private buildUnit(body): Unit {
         let cards: Card[] = this.getCards(body);
         return {
             title: body.title,
@@ -89,4 +117,20 @@ export class UnitController {
             cards: cards
         }
     }
+
+    private saveRelations(relationsId: any, resultId: string): Promise<any>[] {
+        let promises: Promise<any>[] = [];
+        for (const relationType of Object.keys(relationsId)) {
+            for (const unitId of relationsId[relationType]) {
+                promises.push(this.relationService.save(
+                    {
+                        unitFrom: resultId,
+                        unitTo: unitId,
+                        type: RelationUtil.getRelationType(relationType)
+                    }))
+            }
+        }
+        return promises;
+    }
+
 }
