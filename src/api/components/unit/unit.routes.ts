@@ -4,7 +4,7 @@ import {UnitController} from './unit.controller';
 export class UnitRoutes {
     readonly controller: UnitController = new UnitController();
     readonly router: Router = Router();
-    path = '/unit'
+    path = '/unit';
 
     public constructor() {
         this.initRoutes();
@@ -12,5 +12,6 @@ export class UnitRoutes {
 
     initRoutes(): void {
         this.router.post(this.path, this.controller.createUnit);
+        this.router.delete(this.path + '/:unitId', this.controller.deleteUnit);
     }
 }
