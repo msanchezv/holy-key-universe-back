@@ -32,7 +32,22 @@ export class RelationService {
     public async searchRelationsUnit(unitId: string): Promise<Relation[]> {
         try {
             return this.db.collection('relations').find(
-                {$or: [{unitFrom: new ObjectId(unitId)}, {unitTo:  new ObjectId(unitId)}]}).toArray();
+                {$or: [{unitFrom: new ObjectId(unitId)}, {unitTo: new ObjectId(unitId)}]}).toArray();
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    /**
+     * Read afferent relations from db by unitFrom
+     *
+     * @param unitFrom Unit id
+     * @returns Returns an array of relations
+     */
+    @bind
+    public async searchRelationsUnitByUnitFrom(unitFrom: string): Promise<Relation[]> {
+        try {
+            return this.db.collection('relations').find({unitFrom: new ObjectId(unitFrom)}).toArray();
         } catch (err) {
             throw new Error(err);
         }
@@ -52,6 +67,5 @@ export class RelationService {
             throw new Error(err);
         }
     }
-
 
 }

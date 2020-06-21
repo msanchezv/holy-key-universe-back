@@ -46,8 +46,23 @@ export class UnitService {
     @bind
     public async searchUnitById(id: string): Promise<Unit> {
         try {
-            let o_id = ObjectId.isValid(id)? new ObjectId(id) : id;
-            return this.db.collection('units').findOne({ _id: o_id });
+            let o_id = ObjectId.isValid(id) ? new ObjectId(id) : id;
+            return this.db.collection('units').findOne({_id: o_id});
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    /**
+     * Read unit name from db by id
+     *
+     * @param id Unit id
+     * @returns Returns unit name
+     */
+    @bind
+    public async searchNameById(id: string): Promise<Unit> {
+        try {
+            return this.db.collection('units').findOne({_id: new ObjectId(id)}, {title: true});
         } catch (err) {
             throw new Error(err);
         }
