@@ -16,6 +16,35 @@ export class UnitController {
     private readonly relationService: RelationService = new RelationService();
 
     /**
+     * Read unit
+     *
+     * @param req Express request
+     * @param res Express response
+     * @param next Express next
+     * @returns Returns HTTP response
+     */
+    @bind
+    public async readUnit(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+        try {
+            const { unitId } = req.params;
+
+            if (!unitId) {
+                return res.status(400).json({ status: 400, error: 'Invalid request' });
+            }
+
+            const unit: Unit = await this.unitService.searchUnitById(unitId);
+
+            if(!unit){
+                return res.status(404).json({status: 404, error: 'Unit not found'});
+            }
+
+            return res.json({ status: res.statusCode, data: unit });
+        } catch (err) {
+            return res.status(500).json({status: 500, error: `Internal server error`});
+        }
+    }
+
+    /**
      * Create unit
      *
      * @param req Express request
@@ -35,7 +64,7 @@ export class UnitController {
             }
 
             const unitFound = await this.unitService.searchUnitByTitle(body.title);
-            if (unitFound.length > 0) {
+            if (unitFound) {
                 return res.status(400).json({status: 400, error: 'Name already exists'});
             }
 
@@ -104,8 +133,8 @@ export class UnitController {
             relationsId[relationType] = [];
             for (const unitName of relations[relationType]) {
                 let unit = await this.unitService.searchUnitByTitle(unitName);
-                if (unit.length == 1) {
-                    relationsId[relationType].push(unit[0]._id)
+                if (unit) {
+                    relationsId[relationType].push(unit._id)
                 } else {
                     return `Unit ${unitName} not found`;
                 }

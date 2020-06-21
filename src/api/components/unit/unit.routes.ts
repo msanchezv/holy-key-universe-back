@@ -12,6 +12,7 @@ export class UnitRoutes {
 
     initRoutes(): void {
         this.router.post(this.path, this.controller.createUnit);
+        this.router.get(this.path + '/:unitId', this.controller.readUnit);
         this.router.delete(this.path + '/:unitId', this.controller.deleteUnit);
     }
 }
