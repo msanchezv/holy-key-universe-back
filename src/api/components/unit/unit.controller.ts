@@ -169,7 +169,7 @@ export class UnitController {
     private getDetails(cardBody: any): Detail[] {
         let details: Detail[] = [];
         let detailBuilder: DetailsBuilder = new DetailsBuilder();
-        cardBody.details.forEach(detail => {
+        cardBody.forEach(detail => {
             details.push(
                 detailBuilder.setText(detail.text)
                     .setKeys(detail.keys)
@@ -219,10 +219,8 @@ export class UnitController {
                 unitResponse[key] = unit[key];
             } else {
                 unit.cards.forEach((card) => {
-                    unitResponse[card.name] = {
-                        details: card.details
-                    }
-                })
+                    unitResponse[card.name] = card.details;
+                });
             }
         });
 
