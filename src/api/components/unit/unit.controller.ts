@@ -1,5 +1,6 @@
 import {bind} from 'decko';
 import {NextFunction, Request, Response} from 'express';
+import * as yaml from 'js-yaml';
 import {Validator} from "jsonschema"
 import {UNIT_SCHEMA} from "./unit.validator";
 
@@ -51,6 +52,27 @@ export class UnitController {
     }
 
     /**
+     * Create unit from yaml file
+     *
+     * @param req Express request
+     * @param res Express response
+     * @param next Express next
+     * @returns Returns HTTP response
+     */
+    @bind
+    public async createUnitYaml(req: any, res: Response, next: NextFunction): Promise<Response | void> {
+        try {
+            const fileContent = yaml.load(req.file.buffer, {encoding: 'utf-8'});
+            fileContent['title'] = req.file.originalname
+
+            return this.saveUnit(fileContent, res);
+
+        } catch (err) {
+            return res.status(500).json({status: 500, error: `Internal server error`});
+        }
+    }
+
+    /**
      * Create unit
      *
      * @param req Express request
@@ -62,34 +84,8 @@ export class UnitController {
     public async createUnit(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         try {
             const body = req.body;
-            const {relations} = req.body;
-            let unit: Unit;
+            return this.saveUnit(body, res);
 
-            if (!this.isUnitValid(body)) {
-                return res.status(400).json({status: 400, error: 'Invalid request'});
-            }
-
-            const unitFound = await this.unitService.searchUnitByTitle(body.title);
-            if (unitFound) {
-                return res.status(400).json({status: 400, error: 'Name already exists'});
-            }
-
-            let relationsId = {};
-            if (relations) {
-                const errorMessage = await this.getUnitIdRelations(relations, relationsId);
-                if (errorMessage) {
-                    return res.status(400).json({status: 400, error: errorMessage});
-                }
-            }
-
-            unit = this.buildUnit(body);
-            const result = await this.unitService.save(unit);
-
-            if (relations) {
-                await Promise.all(this.saveRelations(relationsId, result.insertedId));
-            }
-
-            return res.json({status: res.statusCode, data: result.ops[0]});
         } catch (err) {
             return res.status(500).json({status: 500, error: `Internal server error`});
         }
@@ -128,6 +124,37 @@ export class UnitController {
         } catch (err) {
             return res.status(500).json({status: 500, error: `Internal server error`});
         }
+    }
+
+    private async saveUnit(body: any, res: Response): Promise<Response | void>{
+        const {relations} = body;
+        let unit: Unit;
+
+        if (!this.isUnitValid(body)) {
+            return res.status(400).json({status: 400, error: 'Invalid request'});
+        }
+
+        const unitFound = await this.unitService.searchUnitByTitle(body.title);
+        if (unitFound) {
+            return res.status(400).json({status: 400, error: 'Name already exists'});
+        }
+
+        let relationsId = {};
+        if (relations) {
+            const errorMessage = await this.getUnitIdRelations(relations, relationsId);
+            if (errorMessage) {
+                return res.status(400).json({status: 400, error: errorMessage});
+            }
+        }
+
+        unit = this.buildUnit(body);
+        const result = await this.unitService.save(unit);
+
+        if (relations) {
+            await Promise.all(this.saveRelations(relationsId, result.insertedId));
+        }
+
+        return res.json({status: res.statusCode, data: result.ops[0]});
     }
 
     private async getUnitIdRelations(relations: any, relationsId): Promise<string> {
