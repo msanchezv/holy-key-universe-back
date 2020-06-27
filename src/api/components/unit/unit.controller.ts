@@ -63,7 +63,7 @@ export class UnitController {
     public async createUnitYaml(req: any, res: Response, next: NextFunction): Promise<Response | void> {
         try {
             const fileContent = yaml.load(req.file.buffer, {encoding: 'utf-8'});
-            fileContent['title'] = req.file.originalname
+            fileContent['title'] = req.file.originalname.substring(0, req.file.originalname.length - 5);
 
             return this.saveUnit(fileContent, res);
 
