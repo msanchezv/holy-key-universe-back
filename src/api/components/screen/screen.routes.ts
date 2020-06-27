@@ -12,5 +12,6 @@ export class ScreenRoutes {
 
     initRoutes(): void {
         this.router.post(this.path, this.controller.createScreen);
+        this.router.get(this.path, this.controller.readScreen);
     }
 }

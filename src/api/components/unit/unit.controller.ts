@@ -126,7 +126,7 @@ export class UnitController {
         }
     }
 
-    private async saveUnit(body: any, res: Response): Promise<Response | void>{
+    private async saveUnit(body: any, res: Response): Promise<Response | void> {
         const {relations} = body;
         let unit: Unit;
 
