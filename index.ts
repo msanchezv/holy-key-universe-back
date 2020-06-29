@@ -2,6 +2,7 @@ import * as express from "express";
 import * as bodyParser from "body-parser";
 import {UnitRoutes} from "./src/api/components/unit/unit.routes";
 import {ScreenRoutes} from "./src/api/components/screen/screen.routes";
+import {ItineraryRoutes} from "./src/api/components/itinerary/itinerary.routes";
 
 export class App {
 
@@ -15,7 +16,7 @@ export class App {
     private config(): void {
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({extended: false}));
-        this.app.use('/api', [new UnitRoutes().router, new ScreenRoutes().router])
+        this.app.use('/api', [new UnitRoutes().router, new ScreenRoutes().router, new ItineraryRoutes().router])
     }
 
 }
