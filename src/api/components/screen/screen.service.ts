@@ -24,22 +24,6 @@ export class ScreenService {
     }
 
     /**
-     * Read a screen from db by id
-     *
-     * @param id Screen
-     * @returns Returns a single screen
-     */
-    @bind
-    public async searchScreenById(id: string): Promise<Screen> {
-        try {
-            let o_id = ObjectId.isValid(id) ? new ObjectId(id) : id;
-            return this.db.collection(this.collection).findOne({_id: o_id});
-        } catch (err) {
-            throw new Error(err);
-        }
-    }
-
-    /**
      * Save new screen to db
      *
      * @param screen Screen to save
@@ -54,5 +38,35 @@ export class ScreenService {
         }
     }
 
+    /**
+     * Read a screen from db by id
+     *
+     * @param id Screen id
+     * @returns Returns a single screen
+     */
+    @bind
+    public async searchScreenById(id: string): Promise<Screen> {
+        try {
+            let o_id = ObjectId.isValid(id) ? new ObjectId(id) : id;
+            return this.db.collection(this.collection).findOne({_id: o_id});
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    /**
+     * Delete a screen from db
+     *
+     * @param id Screen id
+     * @returns Returns a single screen
+     */
+    @bind
+    public async delete(id: string): Promise<any> {
+        try {
+            return this.db.collection(this.collection).deleteOne({_id: new ObjectId(id)});
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
 
 }

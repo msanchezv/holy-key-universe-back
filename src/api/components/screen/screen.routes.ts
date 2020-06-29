@@ -20,5 +20,6 @@ export class ScreenRoutes {
         this.router.post(this.path + '/yaml', this.upload.single('screen'), this.controller.createScreenYaml)
         this.router.post(this.path, this.controller.createScreen);
         this.router.get(this.path + '/:screenId', this.controller.readScreen);
+        this.router.delete(this.path + '/:screenId', this.controller.deleteScreen);
     }
 }

@@ -84,6 +84,35 @@ export class ScreenController {
         }
     }
 
+    /**
+     * Delete screen
+     *
+     * @param req Express request
+     * @param res Express response
+     * @param next Express next
+     * @returns Returns HTTP response
+     */
+    @bind
+    public async deleteScreen(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+        try {
+            const {screenId} = req.params;
+            if (!screenId) {
+                return res.status(400).json({status: 400, error: 'Invalid request'});
+            }
+
+            const screenFound = await this.screenService.searchScreenById(screenId.toString());
+            if (!screenFound) {
+                return res.status(404).json({status: 404, error: 'Screen not found'});
+            }
+
+            await this.screenService.delete(screenFound._id);
+
+            return res.status(204).send();
+        } catch (err) {
+            return res.status(500).json({status: 500, error: `Internal server error`});
+        }
+    }
+
     private async saveScreen(body: any, res: Response): Promise<Response | void> {
         if (!this.isScreenValid(body)) {
             return res.status(400).json({status: 400, error: 'Invalid request'});
