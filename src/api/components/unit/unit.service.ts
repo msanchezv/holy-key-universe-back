@@ -69,6 +69,50 @@ export class UnitService {
     }
 
     /**
+     * Read unit card from db by name
+     *
+     * @param unit Unit name
+     * @param cardName Unit card name
+     * @returns Returns unit card
+     */
+    @bind
+    public async searchUnitCard(unit: string, cardName: string): Promise<any> {
+        try {
+            return this.db.collection('units').findOne({title: unit}, {
+                projection: {
+                    cards: {$elemMatch: {name: cardName}},
+                    _id: 0
+                }
+            });
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    /**
+     * Read unit property from db
+     *
+     * @param unit Unit name
+     * @param property Unit property name
+     * @returns Returns unit card
+     */
+    @bind
+    public async searchUnitProperty(unit: string, property: string): Promise<any> {
+        try {
+            let projections = {
+                projection: {
+                    _id: 0
+                }
+            }
+            projections[property] = 1;
+
+            return this.db.collection('units').findOne({title: unit}, projections);
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    /**
      * Delete a unit from db
      *
      * @param id Unit id

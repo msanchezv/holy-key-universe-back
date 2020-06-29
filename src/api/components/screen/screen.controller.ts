@@ -6,10 +6,12 @@ import {Validator} from "jsonschema";
 import {SCREEN_SCHEMA} from "./screen.validator";
 import {ScreenService} from "./screen.service";
 import {Screen} from "./screen.model";
+import {UnitService} from "../unit/unit.service";
 
 
 export class ScreenController {
     private readonly screenService: ScreenService = new ScreenService();
+    private readonly unitService: UnitService = new UnitService();
 
     /**
      * Read screen
@@ -31,10 +33,12 @@ export class ScreenController {
             const screen: Screen = await this.screenService.searchScreenById(screenId);
 
             if (!screen) {
-                return res.status(404).json({status: 404, error: 'Unit not found'});
+                return res.status(404).json({status: 404, error: 'Screen not found'});
             }
 
-            return res.json({status: res.statusCode, data: this.getScreenInfo(screen)});
+            let screenResponse = await this.getScreenInfo(screen.body);
+
+            return res.json({status: res.statusCode, data: screenResponse});
         } catch (err) {
             return res.status(500).json({status: 500, error: `Internal server error`});
         }
@@ -80,7 +84,7 @@ export class ScreenController {
         }
     }
 
-    private async saveScreen(body: any, res: Response): Promise<Response | void>{
+    private async saveScreen(body: any, res: Response): Promise<Response | void> {
         if (!this.isScreenValid(body)) {
             return res.status(400).json({status: 400, error: 'Invalid request'});
         }
@@ -114,39 +118,62 @@ export class ScreenController {
         };
     }
 
-    private getScreenInfo(body: any) {
+    private async getScreenInfo(body: any) {
         let bodyResponse = {};
-        Object.keys(body).forEach((key) => {
-            if (key == "row" || "column") {
-                bodyResponse[key] = this.getScreenInfo(body[key])
+        for (const key of Object.keys(body)) {
+            if (key == "row" || key == "column") {
+                bodyResponse[key] = await this.getGridViewComponents(body[key]);
             } else {
-                bodyResponse[key] = this.getUnitInfo(body[key])
+                bodyResponse[key] = await this.getViewComponentsValue(body[key])
             }
-        });
+        }
         return bodyResponse;
     }
 
-    private getUnitInfo(value: string) {
-        let unitReferences = value.match(/(?<!(\/))\${.+}/gi);
-        console.log('Array con referencias', unitReferences);
-        unitReferences.forEach(reference => {
-            value.replace(reference, this.getItemValue(reference.substring(2, reference.length - 2)))
-        });
-        return value;
+    private async getGridViewComponents(gridComponent: Array<any>) {
+        let result = [];
+        for (const component of gridComponent) {
+            result.push(await this.getScreenInfo(component));
+        }
+        return result;
     }
 
-    private getItemValue(reference: string) {
-        console.log('Referencia', reference)
-        let keys = reference.split('.');
-        let key = keys[1].substring(0, keys[1].length - 4);
-        if (this.referenceIsCard(key)) {
-            return 'card value ' + key
+    private async getViewComponentsValue(value: string) {
+        let unitReferences = value.match(/(?<!(\/))\${[^}]+}/gi);
+        let unitEscapeReferences = value.match(/\/\${[^}]+}/gi);
+        let result = value;
+        unitEscapeReferences?.forEach(escapeReference => {
+            result = result.replace(escapeReference, escapeReference.substring(1, escapeReference.length))
+        })
+        if (unitReferences) {
+            for (const reference of unitReferences) {
+                result = result.replace(reference, await this.getReferenceValue(reference.substring(2, reference.length - 1)))
+            }
         }
-        return 'no es una card';
+        return result;
+    }
+
+    private async getReferenceValue(reference: string) {
+        let keys = reference.split('.');
+        if (keys.length < 2) {
+            return 'ERROR: Wrong reference'
+        }
+        let unitName = keys[0];
+        let key = keys[1].substring(0, keys[1].length - 3);
+        let index = parseInt(keys[1].substring(keys[1].length - 2, keys[1].length - 1), 10);
+        if (isNaN(index)) {
+            return 'ERROR: Wrong reference'
+        }
+        if (this.referenceIsCard(key)) {
+            let result = await this.unitService.searchUnitCard(unitName, key);
+            return result.cards && result.cards[0].details[index] ? result.cards[0].details[index].text : 'ERROR: No reference was found';
+        } else {
+            let result = await this.unitService.searchUnitProperty(unitName, key);
+            return result.images && result.images[index] ? result.images[index].url : 'ERROR: No reference was found';
+        }
     }
 
     private referenceIsCard(key: string) {
-        console.log('card', key)
         const reserveWords = ['images'];
         return !reserveWords.includes(key);
     }
