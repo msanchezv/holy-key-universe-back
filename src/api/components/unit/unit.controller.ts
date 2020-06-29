@@ -126,6 +126,37 @@ export class UnitController {
         }
     }
 
+    /**
+     * Get Unit relations
+     *
+     * @param req Express request
+     * @param res Express response
+     * @param next Express next
+     * @returns Returns HTTP response
+     */
+    @bind
+    public async getUnitRelations(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+        const {unitName} = req.params;
+
+        if (!unitName) {
+            return res.status(400).json({status: 400, error: 'Invalid request'});
+        }
+
+        const unitFound = await this.unitService.searchUnitByTitle(unitName);
+        if (!unitFound) {
+            return res.status(404).json({status: 404, error: 'Unit not found'});
+        }
+
+        let relations: Relation[];
+        relations = await this.relationService.searchRelationsUnit(unitFound._id);
+        if (!relations) {
+            return res.json({status: res.statusCode, relations: []});
+        }
+
+        let relationsWithNames: Relation[] = await this.changeIdByNameUnit(relations);
+        return res.json({status: res.statusCode, relations: relationsWithNames});
+    }
+
     private async saveUnit(body: any, res: Response): Promise<Response | void> {
         const {relations} = body;
         let unit: Unit;
@@ -266,6 +297,22 @@ export class UnitController {
         }
 
         return relationsResponse;
+    }
+
+    private async changeIdByNameUnit(relations: Relation[]): Promise<Relation[]> {
+        let relationsWithNames = [];
+        for (const relation of relations) {
+            let unitFrom = await this.unitService.searchNameById(relation.unitFrom);
+            let unitTo = await this.unitService.searchNameById(relation.unitTo);
+            if (unitFrom && unitTo) {
+                relationsWithNames.push({
+                    unitFrom: unitFrom.title,
+                    unitTo: unitTo.title,
+                    type: relation.type
+                });
+            }
+        }
+        return relationsWithNames;
     }
 
 }

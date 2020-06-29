@@ -20,6 +20,7 @@ export class UnitRoutes {
         this.router.post(this.path + '/yaml', this.upload.single('unit'), this.controller.createUnitYaml)
         this.router.post(this.path, this.controller.createUnit);
         this.router.get(this.path + '/:unitId', this.controller.readUnit);
+        this.router.get(this.path + '/:unitName/relations', this.controller.getUnitRelations);
         this.router.delete(this.path + '/:unitId', this.controller.deleteUnit);
     }
 }

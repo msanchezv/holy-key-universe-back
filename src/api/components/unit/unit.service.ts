@@ -62,7 +62,7 @@ export class UnitService {
     @bind
     public async searchNameById(id: string): Promise<Unit> {
         try {
-            return this.db.collection('units').findOne({_id: new ObjectId(id)}, {title: true});
+            return this.db.collection('units').findOne({_id: new ObjectId(id)},{projection: {title: true}});
         } catch (err) {
             throw new Error(err);
         }
