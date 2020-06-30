@@ -55,6 +55,20 @@ export class ItineraryService {
     }
 
     /**
+     * Read all the itineraries from db
+     *
+     * @returns Returns an array of itineraries
+     */
+    @bind
+    public async searchAllItineraries(): Promise<Itinerary[]> {
+        try {
+            return this.db.collection(this.collection).find().toArray();
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    /**
      * Delete a itinerary from db
      *
      * @param id Itinerary id

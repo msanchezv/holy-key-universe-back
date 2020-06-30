@@ -42,6 +42,29 @@ export class ItineraryController {
     }
 
     /**
+     * Read all itineraries
+     *
+     * @param req Express request
+     * @param res Express response
+     * @param next Express next
+     * @returns Returns HTTP response
+     */
+    @bind
+    public async readAllItineraries(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+        try {
+            const itineraries: Itinerary[] = await this.itineraryService.searchAllItineraries();
+
+            if (!itineraries) {
+                return res.json({status: res.statusCode, data: []});
+            }
+
+            return res.json({status: res.statusCode, data: itineraries});
+        } catch (err) {
+            return res.status(500).json({status: 500, error: `Internal server error`});
+        }
+    }
+
+    /**
      * Create itinerary from yaml file
      *
      * @param req Express request
