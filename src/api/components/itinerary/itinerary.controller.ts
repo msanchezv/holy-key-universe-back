@@ -13,6 +13,35 @@ export class ItineraryController {
     private readonly itineraryService: ItineraryService = new ItineraryService();
 
     /**
+     * Read itinerary
+     *
+     * @param req Express request
+     * @param res Express response
+     * @param next Express next
+     * @returns Returns HTTP response
+     */
+    @bind
+    public async readItinerary(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+        try {
+            const {itineraryTitle} = req.params;
+
+            if (!itineraryTitle) {
+                return res.status(400).json({status: 400, error: 'Invalid request'});
+            }
+
+            const itinerary: Itinerary = await this.itineraryService.searchItineraryByTitle(itineraryTitle);
+
+            if (!itinerary) {
+                return res.status(404).json({status: 404, error: 'Itinerary not found'});
+            }
+
+            return res.json({status: res.statusCode, data: itinerary});
+        } catch (err) {
+            return res.status(500).json({status: 500, error: `Internal server error`});
+        }
+    }
+
+    /**
      * Create itinerary from yaml file
      *
      * @param req Express request
