@@ -19,5 +19,6 @@ export class ItineraryRoutes {
         this.router.get(this.path + '/:itineraryTitle', this.controller.readItinerary);
         this.router.post(this.path + '/yaml', this.upload.single('itinerary'), this.controller.createItineraryYaml);
         this.router.post(this.path, this.controller.createItinerary);
+        this.router.delete(this.path + '/:itineraryId', this.controller.deleteItinerary);
     }
 }

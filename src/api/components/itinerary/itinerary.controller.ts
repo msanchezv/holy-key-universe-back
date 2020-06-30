@@ -83,6 +83,35 @@ export class ItineraryController {
         }
     }
 
+    /**
+     * Delete itinerary
+     *
+     * @param req Express request
+     * @param res Express response
+     * @param next Express next
+     * @returns Returns HTTP response
+     */
+    @bind
+    public async deleteItinerary(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+        try {
+            const {itineraryId} = req.params;
+            if (!itineraryId) {
+                return res.status(400).json({status: 400, error: 'Invalid request'});
+            }
+
+            const itineraryFound = await this.itineraryService.searchItineraryById(itineraryId.toString());
+            if (!itineraryFound) {
+                return res.status(404).json({status: 404, error: 'Itinerary not found'});
+            }
+
+            await this.itineraryService.delete(itineraryId.toString());
+
+            return res.status(204).send();
+        } catch (err) {
+            return res.status(500).json({status: 500, error: `Internal server error`});
+        }
+    }
+
     private async saveItinerary(body: any, res: Response): Promise<Response | void> {
         const itinerary: Itinerary = body;
 
