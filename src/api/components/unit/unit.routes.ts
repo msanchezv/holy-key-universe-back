@@ -5,7 +5,6 @@ import * as multer from 'multer'
 export class UnitRoutes {
     readonly controller: UnitController = new UnitController();
     readonly router: Router = Router();
-    storage = multer.memoryStorage()
     readonly upload;
 
     path = '/unit';

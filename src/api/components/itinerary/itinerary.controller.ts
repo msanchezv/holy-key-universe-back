@@ -1,5 +1,6 @@
 import {bind} from 'decko';
 import {NextFunction, Request, Response} from 'express';
+import * as yaml from 'js-yaml';
 import {Validator} from "jsonschema";
 import {ITINERARY_SCHEMA} from "./itinerary.validator";
 import {ScreenService} from "../screen/screen.service";
@@ -10,6 +11,29 @@ import {Itinerary} from "./itinerary.model";
 export class ItineraryController {
     private readonly screenService: ScreenService = new ScreenService();
     private readonly itineraryService: ItineraryService = new ItineraryService();
+
+    /**
+     * Create itinerary from yaml file
+     *
+     * @param req Express request
+     * @param res Express response
+     * @param next Express next
+     * @returns Returns HTTP response
+     */
+    @bind
+    public async createItineraryYaml(req: any, res: Response, next: NextFunction): Promise<Response | void> {
+        try {
+            const fileContent: Itinerary = {
+                screens: yaml.load(req.file.buffer, {encoding: 'utf-8'}),
+                title: req.file.originalname.substring(0, req.file.originalname.length - 5)
+            };
+
+            return this.saveItinerary(fileContent, res);
+
+        } catch (err) {
+            return res.status(500).json({status: 500, error: `Internal server error`});
+        }
+    }
 
     /**
      * Create itinerary
@@ -50,7 +74,7 @@ export class ItineraryController {
         for (const screen of itinerary.screens) {
             let screenDB = await this.screenService.searchScreenByTitle(screen);
             if (!screenDB) {
-                return res.status(404).json({status: 404, error: 'Screen ' + screen + 'not found'});
+                return res.status(404).json({status: 404, error: 'Screen ' + screen + ' not found'});
             }
             itineraryDB.screens.push(screenDB._id);
         }

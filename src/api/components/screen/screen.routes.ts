@@ -5,7 +5,6 @@ import * as multer from 'multer';
 export class ScreenRoutes {
     readonly controller: ScreenController = new ScreenController();
     readonly router: Router = Router();
-    storage = multer.memoryStorage();
     readonly upload;
 
     path = '/screen';
