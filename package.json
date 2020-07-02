@@ -1,6 +1,6 @@
 {
   "name": "holy-key-universe-back",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Back del proyecto final Santa Tecla",
   "main": "./dist/server.js",
   "scripts": {
