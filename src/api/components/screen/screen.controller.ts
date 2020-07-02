@@ -27,20 +27,20 @@ export class ScreenController {
             const {screenId} = req.params;
 
             if (!screenId) {
-                return res.status(400).json({status: 400, error: 'Invalid request'});
+                return res.status(400).json({error: 'Invalid request'});
             }
 
             const screen: Screen = await this.screenService.searchScreenById(screenId);
 
             if (!screen) {
-                return res.status(404).json({status: 404, error: 'Screen not found'});
+                return res.status(404).json({error: 'Screen not found'});
             }
 
             let screenResponse = await this.getScreenInfo(screen.body);
 
-            return res.json({status: res.statusCode, data: screenResponse});
+            return res.json(screenResponse);
         } catch (err) {
-            return res.status(500).json({status: 500, error: `Internal server error`});
+            return res.status(500).json({error: `Internal server error`});
         }
     }
 
@@ -59,7 +59,7 @@ export class ScreenController {
             return this.saveScreen(body, res);
 
         } catch (err) {
-            return res.status(500).json({status: 500, error: `Internal server error`});
+            return res.status(500).json({error: `Internal server error`});
         }
     }
 
@@ -80,7 +80,7 @@ export class ScreenController {
             return this.saveScreen(fileContent, res);
 
         } catch (err) {
-            return res.status(500).json({status: 500, error: `Internal server error`});
+            return res.status(500).json({error: `Internal server error`});
         }
     }
 
@@ -97,35 +97,35 @@ export class ScreenController {
         try {
             const {screenId} = req.params;
             if (!screenId) {
-                return res.status(400).json({status: 400, error: 'Invalid request'});
+                return res.status(400).json({error: 'Invalid request'});
             }
 
             const screenFound = await this.screenService.searchScreenById(screenId.toString());
             if (!screenFound) {
-                return res.status(404).json({status: 404, error: 'Screen not found'});
+                return res.status(404).json({error: 'Screen not found'});
             }
 
             await this.screenService.delete(screenFound._id);
 
             return res.status(204).send();
         } catch (err) {
-            return res.status(500).json({status: 500, error: `Internal server error`});
+            return res.status(500).json({error: `Internal server error`});
         }
     }
 
     private async saveScreen(body: any, res: Response): Promise<Response | void> {
         if (!this.isScreenValid(body)) {
-            return res.status(400).json({status: 400, error: 'Invalid request'});
+            return res.status(400).json({error: 'Invalid request'});
         }
 
         const screenFound = await this.screenService.searchScreenByTitle(body.title);
         if (screenFound) {
-            return res.status(400).json({status: 400, error: 'Screen name already exists'});
+            return res.status(400).json({error: 'Screen name already exists'});
         }
 
         const result = await this.screenService.save(this.buildScreen(body));
 
-        return res.json({status: res.statusCode, data: result.ops[0]});
+        return res.json(result.ops[0]);
     }
 
     private isScreenValid(screen: Screen): boolean {

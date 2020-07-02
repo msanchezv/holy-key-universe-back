@@ -26,18 +26,18 @@ export class ItineraryController {
             const {itineraryTitle} = req.params;
 
             if (!itineraryTitle) {
-                return res.status(400).json({status: 400, error: 'Invalid request'});
+                return res.status(400).json({error: 'Invalid request'});
             }
 
             const itinerary: Itinerary = await this.itineraryService.searchItineraryByTitle(itineraryTitle);
 
             if (!itinerary) {
-                return res.status(404).json({status: 404, error: 'Itinerary not found'});
+                return res.status(404).json({error: 'Itinerary not found'});
             }
 
-            return res.json({status: res.statusCode, data: itinerary});
+            return res.json(itinerary);
         } catch (err) {
-            return res.status(500).json({status: 500, error: `Internal server error`});
+            return res.status(500).json({error: `Internal server error`});
         }
     }
 
@@ -55,12 +55,12 @@ export class ItineraryController {
             const itineraries: Itinerary[] = await this.itineraryService.searchAllItineraries();
 
             if (!itineraries) {
-                return res.json({status: res.statusCode, data: []});
+                return res.json([]);
             }
 
-            return res.json({status: res.statusCode, data: itineraries});
+            return res.json(itineraries);
         } catch (err) {
-            return res.status(500).json({status: 500, error: `Internal server error`});
+            return res.status(500).json({error: `Internal server error`});
         }
     }
 
@@ -83,7 +83,7 @@ export class ItineraryController {
             return this.saveItinerary(fileContent, res);
 
         } catch (err) {
-            return res.status(500).json({status: 500, error: `Internal server error`});
+            return res.status(500).json({error: `Internal server error`});
         }
     }
 
@@ -102,7 +102,7 @@ export class ItineraryController {
             return this.saveItinerary(body, res);
 
         } catch (err) {
-            return res.status(500).json({status: 500, error: `Internal server error`});
+            return res.status(500).json({error: `Internal server error`});
         }
     }
 
@@ -119,19 +119,19 @@ export class ItineraryController {
         try {
             const {itineraryId} = req.params;
             if (!itineraryId) {
-                return res.status(400).json({status: 400, error: 'Invalid request'});
+                return res.status(400).json({error: 'Invalid request'});
             }
 
             const itineraryFound = await this.itineraryService.searchItineraryById(itineraryId.toString());
             if (!itineraryFound) {
-                return res.status(404).json({status: 404, error: 'Itinerary not found'});
+                return res.status(404).json({error: 'Itinerary not found'});
             }
 
             await this.itineraryService.delete(itineraryId.toString());
 
             return res.status(204).send();
         } catch (err) {
-            return res.status(500).json({status: 500, error: `Internal server error`});
+            return res.status(500).json({error: `Internal server error`});
         }
     }
 
@@ -139,12 +139,12 @@ export class ItineraryController {
         const itinerary: Itinerary = body;
 
         if (!this.isItineraryValid(itinerary)) {
-            return res.status(400).json({status: 400, error: 'Invalid request'});
+            return res.status(400).json({error: 'Invalid request'});
         }
 
         const itineraryFound = await this.itineraryService.searchItineraryByTitle(itinerary.title);
         if (itineraryFound) {
-            return res.status(400).json({status: 400, error: 'Name already exists'});
+            return res.status(400).json({error: 'Name already exists'});
         }
 
         let itineraryDB: Itinerary = {
@@ -155,7 +155,7 @@ export class ItineraryController {
         for (const screen of itinerary.screens) {
             let screenDB = await this.screenService.searchScreenByTitle(screen);
             if (!screenDB) {
-                return res.status(404).json({status: 404, error: 'Screen ' + screen + ' not found'});
+                return res.status(404).json({error: 'Screen ' + screen + ' not found'});
             }
             itineraryDB.screens.push(screenDB._id);
         }
