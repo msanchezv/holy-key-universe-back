@@ -30,13 +30,13 @@ export class UnitController {
             const {unitId} = req.params;
 
             if (!unitId) {
-                return res.status(400).json({status: 400, error: 'Invalid request'});
+                return res.status(400).json({error: 'Invalid request'});
             }
 
             const unit: Unit = await this.unitService.searchUnitById(unitId);
 
             if (!unit) {
-                return res.status(404).json({status: 404, error: 'Unit not found'});
+                return res.status(404).json({error: 'Unit not found'});
             }
 
             let unitResponse = this.formatUnitResponse(unit);
@@ -45,9 +45,9 @@ export class UnitController {
                 unitResponse["relations"] = await this.formatRelationsUnitResponse(relations);
             }
 
-            return res.json({status: res.statusCode, data: unitResponse});
+            return res.json(unitResponse);
         } catch (err) {
-            return res.status(500).json({status: 500, error: `Internal server error`});
+            return res.status(500).json({error: `Internal server error`});
         }
     }
 
@@ -68,7 +68,7 @@ export class UnitController {
             return this.saveUnit(fileContent, res);
 
         } catch (err) {
-            return res.status(500).json({status: 500, error: `Internal server error`});
+            return res.status(500).json({error: `Internal server error`});
         }
     }
 
@@ -87,7 +87,7 @@ export class UnitController {
             return this.saveUnit(body, res);
 
         } catch (err) {
-            return res.status(500).json({status: 500, error: `Internal server error`});
+            return res.status(500).json({error: `Internal server error`});
         }
     }
 
@@ -104,12 +104,12 @@ export class UnitController {
         try {
             const {unitId} = req.params;
             if (!unitId) {
-                return res.status(400).json({status: 400, error: 'Invalid request'});
+                return res.status(400).json({error: 'Invalid request'});
             }
 
             const unitFound = await this.unitService.searchUnitById(unitId.toString());
             if (!unitFound) {
-                return res.status(404).json({status: 404, error: 'Unit not found'});
+                return res.status(404).json({error: 'Unit not found'});
             }
 
             let relations: Relation[];
@@ -122,7 +122,7 @@ export class UnitController {
 
             return res.status(204).send();
         } catch (err) {
-            return res.status(500).json({status: 500, error: `Internal server error`});
+            return res.status(500).json({error: `Internal server error`});
         }
     }
 
@@ -139,22 +139,22 @@ export class UnitController {
         const {unitName} = req.params;
 
         if (!unitName) {
-            return res.status(400).json({status: 400, error: 'Invalid request'});
+            return res.status(400).json({error: 'Invalid request'});
         }
 
         const unitFound = await this.unitService.searchUnitByTitle(unitName);
         if (!unitFound) {
-            return res.status(404).json({status: 404, error: 'Unit not found'});
+            return res.status(404).json({error: 'Unit not found'});
         }
 
         let relations: Relation[];
         relations = await this.relationService.searchRelationsUnit(unitFound._id);
         if (!relations) {
-            return res.json({status: res.statusCode, relations: []});
+            return res.json([]);
         }
 
         let relationsWithNames: Relation[] = await this.changeIdByNameUnit(relations);
-        return res.json({status: res.statusCode, relations: relationsWithNames});
+        return res.json(relationsWithNames);
     }
 
     private async saveUnit(body: any, res: Response): Promise<Response | void> {
@@ -162,19 +162,19 @@ export class UnitController {
         let unit: Unit;
 
         if (!this.isUnitValid(body)) {
-            return res.status(400).json({status: 400, error: 'Invalid request'});
+            return res.status(400).json({error: 'Invalid request'});
         }
 
         const unitFound = await this.unitService.searchUnitByTitle(body.title);
         if (unitFound) {
-            return res.status(400).json({status: 400, error: 'Name already exists'});
+            return res.status(400).json({error: 'Name already exists'});
         }
 
         let relationsId = {};
         if (relations) {
             const errorMessage = await this.getUnitIdRelations(relations, relationsId);
             if (errorMessage) {
-                return res.status(400).json({status: 400, error: errorMessage});
+                return res.status(400).json({error: errorMessage});
             }
         }
 
@@ -185,7 +185,7 @@ export class UnitController {
             await Promise.all(this.saveRelations(relationsId, result.insertedId));
         }
 
-        return res.json({status: res.statusCode, data: result.ops[0]});
+        return res.json(result.ops[0]);
     }
 
     private async getUnitIdRelations(relations: any, relationsId): Promise<string> {
