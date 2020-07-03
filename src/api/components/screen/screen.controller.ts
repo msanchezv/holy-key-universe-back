@@ -37,6 +37,7 @@ export class ScreenController {
             }
 
             let screenResponse = await this.getScreenInfo(screen.body);
+            screenResponse['title'] = screen.title;
 
             return res.json(screenResponse);
         } catch (err) {
