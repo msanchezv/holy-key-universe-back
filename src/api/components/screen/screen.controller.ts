@@ -7,6 +7,7 @@ import {SCREEN_SCHEMA} from "./screen.validator";
 import {ScreenService} from "./screen.service";
 import {Screen} from "./screen.model";
 import {UnitService} from "../unit/unit.service";
+import {StatementsUtils} from "./statements.utils";
 
 
 export class ScreenController {
@@ -151,10 +152,17 @@ export class ScreenController {
     private async getScreenInfo(body: any) {
         let bodyResponse = {};
         for (const key of Object.keys(body)) {
-            if (key == "row" || key == "column") {
-                bodyResponse[key] = await this.getGridViewComponents(body[key]);
-            } else {
-                bodyResponse[key] = await this.getViewComponentsValue(body[key])
+            switch (key) {
+                case "row":
+                case "column":
+                    bodyResponse[key] = await this.getGridViewComponents(body[key]);
+                    break;
+                case "exercise":
+                    bodyResponse[key] = await this.getExerciseInfo(body[key]);
+                    break;
+                default:
+                    bodyResponse[key] = await this.getViewComponentsValue(body[key]);
+                    break;
             }
         }
         return bodyResponse;
@@ -181,6 +189,71 @@ export class ScreenController {
             }
         }
         return result;
+    }
+
+    private async getExerciseInfo(exercise: any) {
+        let exerciseResponse: any;
+        const exerciseCard = this.getExerciseCard(exercise);
+        if (!exerciseCard) {
+            return {};
+        }
+        if (exercise['mode'] === "fill") {
+            exerciseResponse = await this.getExerciseFillInfo(exercise, exerciseCard);
+        } else {
+            exerciseResponse = await this.getExerciseOpenAnswerInfo(exercise, exerciseCard);
+        }
+        if (exerciseResponse) {
+            exerciseResponse.exerciseCard = exerciseCard;
+            return exerciseResponse;
+        }
+        return {};
+    }
+
+    private getExerciseCard(exercise: any) {
+        let keys = exercise.card.split('.');
+        if (keys.length < 2) {
+            return null;
+        }
+        const exerciseCard: any = {
+            unit: keys[0],
+            card: exercise.mode === "openanswer" ? keys[1] : keys[1].substring(0, keys[1].length - 3),
+
+        }
+        if (exercise.mode === "openanswer") {
+            return exerciseCard;
+        }
+        exerciseCard.index = parseInt(keys[1].substring(keys[1].length - 2, keys[1].length - 1), 10)
+        return isNaN(exerciseCard.index) ? null : exerciseCard;
+    }
+
+    private async getExerciseOpenAnswerInfo(exercise: any, exerciseCard: any) {
+        const infoUnit = await this.unitService.searchUnitGender(exerciseCard.unit);
+        if (!infoUnit) {
+            return null;
+        }
+
+        return {
+            mode: exercise.mode,
+            statement: StatementsUtils.getStatement(exerciseCard.unit, infoUnit.gender, exerciseCard.card)
+        };
+    }
+
+    private async getExerciseFillInfo(exercise: any, exerciseCard: any) {
+        let exerciseResponse: any = {
+            mode: exercise.mode,
+            statement: exercise.statement || StatementsUtils.getFillStatement()
+        };
+        let result = await this.unitService.searchUnitCard(exerciseCard.unit, exerciseCard.card);
+        const cardInfo = result.cards && result.cards[0].details[exerciseCard.index] ? result.cards[0].details[exerciseCard.index] : null;
+        if (cardInfo && cardInfo.text && cardInfo.keys) {
+            exerciseResponse.additionalInfo = {
+                text: cardInfo.text,
+                keys: cardInfo.keys
+            }
+        } else {
+            return null;
+        }
+        return exerciseResponse;
     }
 
     private async getReferenceValue(reference: string) {
