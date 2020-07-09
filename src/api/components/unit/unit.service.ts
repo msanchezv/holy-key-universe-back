@@ -69,6 +69,25 @@ export class UnitService {
     }
 
     /**
+     * Read unit gender from db by name
+     *
+     * @param unit Unit name
+     * @returns Returns unit gender and id
+     */
+    @bind
+    public async searchUnitGender(unit: string): Promise<any> {
+        try {
+            return this.db.collection('units').findOne({title: unit}, {
+                projection: {
+                    gender: 1
+                }
+            });
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    /**
      * Read unit card from db by name
      *
      * @param unit Unit name
