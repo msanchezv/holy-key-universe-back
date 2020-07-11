@@ -8,6 +8,10 @@ export class Detail {
     keys: string[];
     type: DETAIL_TYPE;
     status: STATUS_TYPE;
+    registerFillAnswer?:{
+        correctAnswers: number;
+        wrongAnswers: number;
+    }
 }
 
 export enum DETAIL_TYPE {

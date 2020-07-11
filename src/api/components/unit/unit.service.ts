@@ -3,6 +3,7 @@ import {ObjectId} from 'mongodb';
 
 import * as mongo from "../../../../db/db";
 import {Unit} from "./unit.model"
+import {Detail} from "./card/card";
 
 export class UnitService {
     readonly db = mongo.getDb();
@@ -141,6 +142,45 @@ export class UnitService {
     public async delete(id: string): Promise<any> {
         try {
             return this.db.collection('units').deleteOne({_id: new ObjectId(id)});
+        } catch (err) {
+            throw new Error(err);
+        }
+    }
+
+    /**
+     * Update Unit cards
+     *
+     * @param unit Unit name
+     * @param cardName Unit card name
+     * @param detail Detail to save
+     * @returns Returns a single unit
+     */
+    @bind
+    public async updateCards(unit: string, cardName: string, detail: Detail): Promise<any> {
+        try {
+            return this.db.collection('units').updateOne({title: unit, cards: {$elemMatch: {name: cardName}}}, {
+                $push: { "cards.$.details": detail }
+            });
+        } catch (err) {
+            console.log('Error DB', err);
+            throw new Error(err);
+        }
+    }
+
+    /**
+     * Update Unit cards details
+     *
+     * @param unit Unit name
+     * @param cardName Unit card name
+     * @param details Details to update
+     * @returns Returns a single unit
+     */
+    @bind
+    public async updateCardDetails(unit: string, cardName: string, details: any): Promise<any> {
+        try {
+            return this.db.collection('units').updateOne({title: unit, cards: {$elemMatch: {name: cardName}}},{
+                $set: { "cards.$.details": details }
+            });
         } catch (err) {
             throw new Error(err);
         }
